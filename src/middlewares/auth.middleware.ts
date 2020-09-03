@@ -5,7 +5,7 @@ import {
   DataStoredInToken,
   RequestWithUser,
 } from "../interfaces/auth.interface";
-import { db } from "../db";
+import { pool as db } from "../db";
 import { log, dir } from "console";
 
 async function authMiddleware(
@@ -29,7 +29,7 @@ async function authMiddleware(
       const userId = verificationResponse.id;
       log(userId);
       dir(req.user);
-      const user = await db.query("SELECT * FROM users WHERE user_email = $1", [
+      const user = await db.query("SELECT * FROM users WHERE email = $1", [
         req.user.email,
       ]);
       const findUser: any = user.rows[0];

@@ -1,20 +1,19 @@
-CREATE DATABASE authtodo;
-
-CREATE TABLE users(
-  user_id uuid DEFAULT uuid_generate_v4(),
-  user_name VARCHAR(255) NOT NULL,
-  user_email VARCHAR(255) NOT NULL UNIQUE,
-  user_password VARCHAR(255) NOT NULL,
-  PRIMARY KEY(user_id)
+CREATE TABLE IF NOT EXISTS users(
+  id uuid DEFAULT uuid_generate_v4(),
+  first_name VARCHAR(50) NOT NULL,
+  last_name VARCHAR(50) NOT NULL,
+  username VARCHAR(50) NOT NULL UNIQUE,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  last_login TIMESTAMP,
+  PRIMARY KEY(id)
 );
 
-CREATE TABLE todo(
-  todo_id SERIAL,
-  user_id UUID ,
-  description VARCHAR(255),
-  PRIMARY KEY (todo_id),
-  FOREIGN KEY (user_id) REFERENCES users(user_id)
+CREATE TABLE IF NOT EXISTS roles(
+  id uuid DEFAULT uuid_generate_v4(),
+  description VARCHAR(50) NOT NULL,
+  created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY(id)
 );
 
-
-INSERT INTO users (user_name, user_email, user_password) VALUES ('henry', 'henryly213@gmail.com', 'kthl8822');
