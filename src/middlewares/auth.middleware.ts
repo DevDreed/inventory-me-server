@@ -14,23 +14,18 @@ async function authMiddleware(
   next: NextFunction
 ) {
   const cookies = req.cookies;
-
   if (cookies && cookies.Authorization) {
     const secret = process.env.JWT_SECRET;
 
     try {
-      dir(cookies);
-      dir(secret);
+     
       const verificationResponse = jwt.verify(
         cookies.Authorization,
         secret
       ) as DataStoredInToken;
-      dir(verificationResponse);
       const userId = verificationResponse.id;
-      log(userId);
-      dir(req.user);
-      const user = await db.query("SELECT * FROM users WHERE user_email = $1", [
-        req.user.email,
+      const user = await db.query("SELECT * FROM users WHERE id = $1", [
+        userId,
       ]);
       const findUser: any = user.rows[0];
 

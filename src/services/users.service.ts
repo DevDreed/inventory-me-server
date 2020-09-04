@@ -1,62 +1,69 @@
-import * as bcrypt from 'bcrypt';
-import { CreateUserDto } from '../dtos/users.dto';
-import HttpException from '../exceptions/HttpException';
-import { User } from '../interfaces/users.interface';
-import userModel from '../models/users.model';
-import { isEmptyObject } from '../utils/util';
-import {db} from "../db";
+import * as bcrypt from "bcrypt";
+import { CreateUserDto } from "../dtos/users.dto";
+import HttpException from "../exceptions/HttpException";
+import { User } from "../interfaces/users.interface";
+import { isEmptyObject } from "../utils/util";
+import { db } from "../db";
 
 class UserService {
-  public users = userModel;
-
   public async findAllUser(): Promise<any> {
-    const users = await db.query("SELECT * FROM users");
-    console.dir(users);
-    return users;
-    // const allUsers: User[] = users;
-    // return allUsers;
+    const users = await db.query(
+      "SELECT id, first_name, last_name, email, username, created_date, last_login FROM users"
+    );
+    return users.rows;
   }
 
-  public async findUserById(userId: number): Promise<User> {
-    const findUser: User = this.users.find(user => user.id === userId);
+  public async findUserById(userId: string): Promise<User> {
+    const user = await db.query(
+      "SELECT  id, first_name, last_name, email, username, created_date, last_login FROM users WHERE id = $1",
+      [userId]
+    );
+    const findUser: any = user.rows[0];
     if (!findUser) throw new HttpException(409, "You're not user");
 
     return findUser;
   }
 
-  public async createUser(userData: CreateUserDto): Promise<User> {
-    if (isEmptyObject(userData)) throw new HttpException(400, "You're not userData");
+  public async updateUser(userId: string, userData: User): Promise<User> {
+    if (isEmptyObject(userData))
+      throw new HttpException(400, "You're not userData");
 
-    const findUser: User = this.users.find(user  => user.email === userData.email);
-    if (findUser) throw new HttpException(409, `You're email ${userData.email} already exists`);
-
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const createUserData: User = { id: (this.users.length + 1), ...userData, password: hashedPassword };
-
-    return createUserData;
-  }
-
-  public async updateUser(userId: number, userData: User): Promise<User[]> {
-    if (isEmptyObject(userData)) throw new HttpException(400, "You're not userData");
-
-    const findUser: User = this.users.find(user => user.id === userId);
-    if (!findUser) throw new HttpException(409, "You're not user");
+    const user = await db.query("SELECT * FROM users WHERE email = $1", [
+      userData.email,
+    ]);
+    const findUser: any = user.rows[0];
+    if (!findUser)
+      throw new HttpException(
+        409,
+        `You're email ${userData.email} doesn't exists`
+      );
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const updateUserData: User[] = this.users.map((user: User) => {
-      if (user.id === findUser.id) user = { id: userId, ...userData, password: hashedPassword };
-      return user;
-    });
+    const newUser = await db.query(
+      "UPDATE users SET first_name = $2, last_name= $3, username= $4, email= $5, password= $6, updated_date = NOW() WHERE id = $1 RETURNING id, first_name, last_name, email, username, created_date, last_login",
+      [
+        userId,
+        userData.first_name,
+        userData.last_name,
+        userData.username,
+        userData.email,
+        hashedPassword,
+      ]
+    );
 
-    return updateUserData;
+    return newUser.rows[0];
   }
 
-  public async deleteUser(userId: number): Promise<User[]> {
-    const findUser: User = this.users.find(user => user.id === userId);
+  public async deleteUser(userId: string): Promise<string> {
+    const user = await db.query("SELECT * FROM users WHERE id = $1", [userId]);
+    const findUser: any = user.rows[0];
     if (!findUser) throw new HttpException(409, "You're not user");
 
-    const deleteUserData: User[] = this.users.filter(user => user.id !== findUser.id);
-    return deleteUserData;
+    const deletedUserData: User[] = await db.query(
+      "DELETE FROM users WHERE id = $1",
+      [userId]
+    );
+    return "deleteUserData";
   }
 }
 

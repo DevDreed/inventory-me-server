@@ -1,11 +1,12 @@
-import { Pool } from 'pg';
-
-export const db = new Pool({
-  host: "localhost",
+const { Pool } = require("pg");
+var config = {
   user: "postgres",
-  password: "nascar38",
+  database: "inventory-me",
+  password: process.env.DB_PASSWORD,
+  host: "localhost",
   port: 5432,
-  database: "inventory-me"
-});
+  max: 10, // max number of clients in the pool
+  idleTimeoutMillis: 30000,
+};
 
-
+export const db = new Pool(config);

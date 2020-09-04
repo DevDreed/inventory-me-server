@@ -1,1 +1,90 @@
 # inventory-me-server
+
+# Inventory me
+
+## Tables
+
+- Users
+  - id PK
+  - username
+  - first_name
+  - last_name
+  - email
+  - password
+  - last_login
+  - created_date
+  - updated_date
+  - last_login
+- Orders
+  - id PK
+  - items
+  - ship_date
+  - ship_carrier
+  - ship_cost
+  - tracking_number
+  - pickup
+  - platform_id FK
+  - seller_id FK
+  - paid
+  - created_date
+  - updated_date
+- Products
+  - id PK
+  - created_by FK
+  - description
+  - size
+  - image
+  - price
+  - qty
+  - percent_markup
+  - items
+    - id
+    - type
+    - description
+    - price
+  - tags
+  - backordered?
+  - created_date
+  - sold_date
+  - updated_date
+- Signings
+  - id PK
+  - created_by FK
+  - description
+  - price
+  - location/address
+  - client_id
+  - items
+  - created_date
+  - updated_date
+- Clients
+  - id PK
+  - created_by FK
+  - first_name
+  - last_name
+  - phone
+  - email
+  - address
+  - notes
+- Customers
+  - id PK
+  - created_by FK
+  - first_name
+  - last_name
+  - address
+  - phone
+  - email
+- Platforms
+  - id
+  - description
+- Items
+  - id
+  - type
+  - description
+  - price
+- ItemTypes
+  - id
+  - description
+- Tags
+  - id
+  - description

@@ -12,7 +12,7 @@ afterAll(async () => {
 });
 
 describe('Testing Auth', () => {
-  describe('[POST] /signup', () => {
+  describe('[POST] /register', () => {
     it('response should have the Create userData', () => {
       const userData: CreateUserDto = {
         email: 'lkm@gmail.com',
@@ -22,7 +22,7 @@ describe('Testing Auth', () => {
       const app = new App([authRoute]);
 
       return request(app.getServer())
-                .post(`${authRoute.path}/signup`)
+                .post(`${authRoute.path}/register`)
                 .send(userData);
     });
   });
