@@ -27,11 +27,14 @@ Content-Type: application/json
 }
 
 ###
-# Edit User By Id
-PUT {{baseURL}}/users/714eb5c5-bcab-4d8f-b021-4a5b4b1015af
+# Update User
+PUT {{baseURL}}/users/72d5cb6c-1301-4ee6-805b-021c91aa9ed0
 Content-Type: application/json
 
 {
+    "first_name": "Dustin",
+    "last_name": "Reeddddddddd",
+    "username": "DevDreed",
     "email": "example@gmail.com",
 	"password": "qwer1234"
 }

@@ -32,15 +32,15 @@ class UserService {
       userData.email,
     ]);
     const findUser: any = user.rows[0];
-    if (findUser)
+    if (!findUser)
       throw new HttpException(
         409,
-        `You're email ${userData.email} already exists`
+        `You're email ${userData.email} doesn't exists`
       );
 
     const hashedPassword = await bcrypt.hash(userData.password, 10);
     const newUser = await db.query(
-      "UPDATE users SET first_name = $2, last_name= $3, username= $4, email= $5, password= $6 WHERE id = $1 RETURNING id, first_name, last_name, email, username, created_date, last_login",
+      "UPDATE users SET first_name = $2, last_name= $3, username= $4, email= $5, password= $6, updated_date = NOW() WHERE id = $1 RETURNING id, first_name, last_name, email, username, created_date, last_login",
       [
         userId,
         userData.first_name,

@@ -10,7 +10,6 @@ class AuthController {
 
   public register = async (req: Request, res: Response, next: NextFunction) => {
     const userData: CreateUserDto = req.body;
-    dir(userData);
     try {
       const registerUserData: User = await this.authService.register(userData);
       res.status(201).json({ data: registerUserData, message: "register" });
