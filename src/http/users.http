@@ -2,16 +2,19 @@
 
 ###
 # baseURL
-@baseURL = http://localhost:3000
+@baseURL = http://localhost:5000
 
 ###
 # Find All Users
 GET {{baseURL}}/users
 
 ###
-# Find User By Id
+# Find User By WRONG Id
 GET {{baseURL}}/users/1
 
+###
+# Find User By Id
+GET {{baseURL}}/users/714eb5c5-bcab-4d8f-b021-4a5b4b1015af
 
 ###
 # Add User
@@ -25,7 +28,7 @@ Content-Type: application/json
 
 ###
 # Edit User By Id
-PUT {{baseURL}}/users/1
+PUT {{baseURL}}/users/714eb5c5-bcab-4d8f-b021-4a5b4b1015af
 Content-Type: application/json
 
 {

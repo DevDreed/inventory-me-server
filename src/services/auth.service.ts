@@ -1,42 +1,51 @@
 import * as bcrypt from "bcrypt";
 import * as jwt from "jsonwebtoken";
-import { CreateUserDto } from "../dtos/users.dto";
+import { CreateUserDto, LoginUserDto } from "../dtos/users.dto";
 import HttpException from "../exceptions/HttpException";
 import { DataStoredInToken, TokenData } from "../interfaces/auth.interface";
 import { User } from "../interfaces/users.interface";
 import { isEmptyObject } from "../utils/util";
-import { pool as db } from "../db";
-import { dir } from "console";
+import { db } from "../db";
 
 class AuthService {
   public async register(userData: CreateUserDto): Promise<any> {
     if (isEmptyObject(userData))
       throw new HttpException(400, "You're not userData");
-    dir("getting here");
-    db.connect((err: { stack: any; }, client: { query: (arg0: string, arg1: (err: any, result: any) => void) => void; }, release: () => void) => {
-      if (err) {
-        return console.error("Error acquiring client", err.stack);
-      }
-      client.query("SELECT NOW()", (err: { stack: any; }, result: { rows: any; }) => {
-        release();
-        if (err) {
-          return console.error("Error executing query", err.stack);
-        }
-        console.log(result.rows);
-      });
-    });
-    const users = await db.query("SELECT NOW()");
-    dir(users);
-    return users;
+    const user = await db.query("SELECT * FROM users WHERE email = $1", [
+      userData.email,
+    ]);
+
+    const findUser: User = user.rows[0];
+    if (findUser)
+      throw new HttpException(
+        409,
+        `You're email ${userData.email} already exists!`
+      );
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(userData.password, salt);
+
+    let newUser = await db.query(
+      "INSERT INTO users (first_name, last_name, username, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING id, first_name, last_name, email, username, created_date, last_login",
+      [
+        userData.first_name,
+        userData.last_name,
+        userData.username,
+        userData.email,
+        hashedPassword,
+      ]
+    );
+    const result = newUser.rows[0];
+    return result;
   }
 
   public async login(
-    userData: CreateUserDto
+    userData: LoginUserDto
   ): Promise<{ cookie: string; findUser: User }> {
     if (isEmptyObject(userData))
       throw new HttpException(400, "You're not userData");
 
-    const user = await db.query("SELECT * FROM users WHERE user_email = $1", [
+    const user = await db.query("SELECT * FROM users WHERE email = $1", [
       userData.email,
     ]);
     const findUser: User = user.rows[0];
@@ -50,10 +59,15 @@ class AuthService {
     if (!isPasswordMatching)
       throw new HttpException(409, "You're password not matching");
 
-    const tokenData = this.createToken(findUser);
+    const user1 = await db.query(
+      "UPDATE users SET last_login = $2 WHERE id = $1 RETURNING id, first_name, last_name, email, username, created_date, last_login",
+      [findUser.id, new Date()]
+    );
+
+    const findUser1: User = user1.rows[0];
+    const tokenData = this.createToken(findUser1);
     const cookie = this.createCookie(tokenData);
-    delete findUser.password;
-    return { cookie, findUser };
+    return { cookie, findUser: findUser1 };
   }
 
   public async logout(userData: User): Promise<User> {

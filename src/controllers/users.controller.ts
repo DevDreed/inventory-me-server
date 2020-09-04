@@ -20,8 +20,7 @@ class UsersController {
     res: Response,
     next: NextFunction
   ) => {
-    const userId: number = Number(req.params.id);
-
+    const userId: string = req.params.id;
     try {
       const findOneUserData: User = await this.userService.findUserById(userId);
       res.status(200).json({ data: findOneUserData, message: "findOne" });
@@ -30,43 +29,39 @@ class UsersController {
     }
   };
 
-  public createUser = async (
+  public updateUser = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
-    const userData: CreateUserDto = req.body;
+    const userId: string = req.params.id;
+    const userData: User = req.body;
 
     try {
-      const createUserData: User = await this.userService.createUser(userData);
-      res.status(201).json({ data: createUserData, message: "created" });
+      const updateUserData: User = await this.userService.updateUser(
+        userId,
+        userData
+      );
+      res.status(200).json({ data: updateUserData, message: "updated" });
     } catch (error) {
       next(error);
     }
   };
 
-  // public updateUser = async (req: Request, res: Response, next: NextFunction) => {
-  //   const userId: number = Number(req.params.id);
-  //   const userData: User = req.body;
+  public deleteUser = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const userId: string = req.params.id;
 
-  //   try {
-  //     const updateUserData: User[] = await this.userService.updateUser(userId, userData);
-  //     res.status(200).json({ data: updateUserData, message: 'updated' });
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
-
-  // public deleteUser = async (req: Request, res: Response, next: NextFunction) => {
-  //   const userId : number = Number(req.params.id);
-
-  //   try {
-  //     const deleteUserData: User[] = await this.userService.deleteUser(userId);
-  //     res.status(200).json({ data: deleteUserData, message: 'deleted' });
-  //   } catch (error) {
-  //     next(error);
-  //   }
-  // }
+    try {
+      const deleteUserData: string = await this.userService.deleteUser(userId);
+      res.status(200).json({ data: deleteUserData, message: "deleted" });
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 
 export default UsersController;

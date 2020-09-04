@@ -5,6 +5,6 @@ export interface User {
   username: string;
   email: string;
   password: string;
-  created_at: Date;
+  created_date: Date;
   last_login?: Date;
 }

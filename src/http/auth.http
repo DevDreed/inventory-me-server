@@ -32,7 +32,3 @@ Content-Type: application/json
 POST {{baseURL}}/logout
 Content-Type: application/json
 
-{
-    "email": "example@gmail.com",
-	"password": "qwer1234"
-}
