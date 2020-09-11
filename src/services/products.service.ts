@@ -5,7 +5,7 @@ import { db } from "../db";
 import { CreateProductDto } from "dtos/products.dto";
 
 class ProductService {
-  public async findAllProducts(): Promise<any> {
+  public async findAllProducts(): Promise<Product[]> {
     const products = await db.query(
       "SELECT id, description, price, quantity, percent_markup, backordered, created_date, updated_date FROM products"
     );
@@ -17,9 +17,12 @@ class ProductService {
       "SELECT id, description, price, quantity, percent_markup, backordered, created_date, updated_date FROM products WHERE id = $1",
       [id]
     );
-    const findProduct: any = product.rows[0];
+    const findProduct: Product = product.rows[0];
     if (!findProduct) throw new HttpException(409, "You're not product");
-
+    const products = await db.query(
+      "SELECT id, description, price, quantity, percent_markup, backordered, created_date, updated_date FROM products"
+    );
+    findProduct.allProducts = products.rows;
     return findProduct;
   }
 
@@ -76,7 +79,7 @@ class ProductService {
     const product = await db.query("SELECT * FROM products WHERE id = $1", [
       id,
     ]);
-    const findProduct: any = product.rows[0];
+    const findProduct: Product = product.rows[0];
     if (!findProduct) throw new HttpException(409, "You're not product");
 
     const deletedProductData: Product[] = await db.query(

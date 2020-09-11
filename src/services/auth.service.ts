@@ -41,7 +41,7 @@ class AuthService {
 
   public async login(
     userData: LoginUserDto
-  ): Promise<{ cookie: string; findUser: User }> {
+  ): Promise<{ token: TokenData; findUser: User }> {
     if (isEmptyObject(userData))
       throw new HttpException(400, "You're not userData");
 
@@ -66,8 +66,7 @@ class AuthService {
 
     const findUser1: User = user1.rows[0];
     const tokenData = this.createToken(findUser1);
-    const cookie = this.createCookie(tokenData);
-    return { cookie, findUser: findUser1 };
+    return { token: tokenData, findUser: findUser1 };
   }
 
   public async logout(userData: User): Promise<User> {

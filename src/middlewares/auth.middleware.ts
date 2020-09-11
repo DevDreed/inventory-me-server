@@ -6,21 +6,21 @@ import {
   RequestWithUser,
 } from "../interfaces/auth.interface";
 import { db } from "../db";
-import { log, dir } from "console";
+import { dir } from "console";
 
 async function authMiddleware(
   req: RequestWithUser,
   res: Response,
   next: NextFunction
 ) {
-  const cookies = req.cookies;
-  if (cookies && cookies.Authorization) {
+  const headers = req.headers;
+  console.log("headers", headers);
+  if (headers && headers.authorization) {
     const secret = process.env.JWT_SECRET;
 
     try {
-     
       const verificationResponse = jwt.verify(
-        cookies.Authorization,
+        headers.authorization,
         secret
       ) as DataStoredInToken;
       const userId = verificationResponse.id;

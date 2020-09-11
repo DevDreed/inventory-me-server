@@ -9,6 +9,7 @@ export interface Product {
   tags: Tag[];
   created_date: Date;
   updated_date: Date;
+  allProducts?: Product[];
 }
 
 export interface Item {
