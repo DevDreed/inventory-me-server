@@ -25,6 +25,7 @@ class AuthRoute implements Route {
       this.authController.logIn
     );
     this.router.post(`/logout`, authMiddleware, this.authController.logOut);
+    this.router.get(`/checkToken`, authMiddleware, this.authController.checkToken);
   }
 }
 

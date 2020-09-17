@@ -9,7 +9,7 @@ export interface Product {
   tags: Tag[];
   created_date: Date;
   updated_date: Date;
-  allProducts?: Product[];
+  images?: Image[];
 }
 
 export interface Item {
@@ -29,4 +29,10 @@ export interface ItemType {
 export interface Tag {
   id: string;
   description: string;
+}
+
+export interface Image {
+  id: string;
+  filename: string;
+  url: string;
 }

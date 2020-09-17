@@ -31,6 +31,16 @@ CREATE TABLE IF NOT EXISTS products (
   PRIMARY KEY(id)
 );
 
+CREATE TABLE IF NOT EXISTS product_images (
+  id uuid DEFAULT uuid_generate_v4(),
+  url VARCHAR(255) NOT NULL,
+  filename VARCHAR(50),
+  product_id uuid NOT NULL,
+  created_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (product_id) REFERENCES products(id),
+  PRIMARY KEY(id)
+);
+
 CREATE TABLE IF NOT EXISTS item_types (
   id uuid DEFAULT uuid_generate_v4(),
   description VARCHAR(255) NOT NULL,

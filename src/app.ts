@@ -6,6 +6,7 @@ import * as hpp from 'hpp';
 import * as logger from 'morgan';
 import Routes from './interfaces/routes.interface';
 import errorMiddleware from './middlewares/error.middleware';
+import * as fileUpload from 'express-fileupload';
 
 class App {
   public app: express.Application;
@@ -47,6 +48,7 @@ class App {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
+    this.app.use(fileUpload());
   }
 
   private initializeRoutes(routes: Routes[]) {

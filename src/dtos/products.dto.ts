@@ -19,5 +19,3 @@ export class CreateProductDto {
   @IsBoolean()
   public backordered: boolean;
 }
-
-

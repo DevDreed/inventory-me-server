@@ -35,11 +35,42 @@ class AuthService {
         hashedPassword,
       ]
     );
-    const result = newUser.rows[0];
-    return result;
+    const createdUser = newUser.rows[0];
+    const tokenData = this.createToken(createdUser);
+    return { token: tokenData, findUser: createdUser };
   }
 
   public async login(
+    userData: LoginUserDto
+  ): Promise<{ token: TokenData; findUser: User }> {
+    if (isEmptyObject(userData))
+      throw new HttpException(400, "You're not userData");
+
+    const user = await db.query("SELECT * FROM users WHERE email = $1", [
+      userData.email,
+    ]);
+    const findUser: User = user.rows[0];
+    if (!findUser)
+      throw new HttpException(409, `You're email ${userData.email} not found`);
+
+    const isPasswordMatching: boolean = await bcrypt.compare(
+      userData.password,
+      findUser.password
+    );
+    if (!isPasswordMatching)
+      throw new HttpException(409, "You're password not matching");
+
+    const user1 = await db.query(
+      "UPDATE users SET last_login = $2 WHERE id = $1 RETURNING id, first_name, last_name, email, username, created_date, last_login",
+      [findUser.id, new Date()]
+    );
+
+    const findUser1: User = user1.rows[0];
+    const tokenData = this.createToken(findUser1);
+    return { token: tokenData, findUser: findUser1 };
+  }
+
+  public async checkToken(
     userData: LoginUserDto
   ): Promise<{ token: TokenData; findUser: User }> {
     if (isEmptyObject(userData))

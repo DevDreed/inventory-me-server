@@ -14,7 +14,6 @@ async function authMiddleware(
   next: NextFunction
 ) {
   const headers = req.headers;
-  console.log("headers", headers);
   if (headers && headers.authorization) {
     const secret = process.env.JWT_SECRET;
 

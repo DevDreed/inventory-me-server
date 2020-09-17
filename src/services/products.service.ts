@@ -7,8 +7,16 @@ import { CreateProductDto } from "dtos/products.dto";
 class ProductService {
   public async findAllProducts(): Promise<Product[]> {
     const products = await db.query(
-      "SELECT id, description, price, quantity, percent_markup, backordered, created_date, updated_date FROM products"
+      `SELECT p.id, p.description, p.price, p.quantity, p.percent_markup, p.backordered, p.created_date, p.updated_date,
+      (
+        SELECT json_agg(row_to_json(i)) FROM
+        (
+          SELECT url, filename FROM product_images WHERE product_id = p.id
+        ) i
+      ) AS images
+      FROM products p;`
     );
+
     return products.rows;
   }
 
@@ -19,16 +27,18 @@ class ProductService {
     );
     const findProduct: Product = product.rows[0];
     if (!findProduct) throw new HttpException(409, "You're not product");
-    const products = await db.query(
-      "SELECT id, description, price, quantity, percent_markup, backordered, created_date, updated_date FROM products"
+
+    const images = await db.query(
+      "SELECT url, filename FROM images INNER JOIN product_images ON images.id=product_images.image_id WHERE product_id = $1",
+      [id]
     );
-    findProduct.allProducts = products.rows;
+    findProduct.images = images.rows;
     return findProduct;
   }
 
   public async createProduct(productData: CreateProductDto): Promise<any> {
     if (isEmptyObject(productData))
-      throw new HttpException(400, "You're not productData");
+      throw new HttpException(400, "Product is empty");
 
     let newProduct = await db.query(
       "INSERT INTO products (description, size, price, percent_markup, quantity, backordered) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, description, price, quantity, percent_markup, backordered, created_date, updated_date",
@@ -42,6 +52,12 @@ class ProductService {
       ]
     );
     const result = newProduct.rows[0];
+    const images = await db.query(
+      "SELECT url, filename FROM product_images WHERE product_id = $1",
+      [result.id]
+    );
+    result.images = images.rows;
+
     return result;
   }
 
@@ -81,6 +97,11 @@ class ProductService {
     ]);
     const findProduct: Product = product.rows[0];
     if (!findProduct) throw new HttpException(409, "You're not product");
+
+    const deletedImageData: Product[] = await db.query(
+      "DELETE FROM product_images WHERE product_id = $1",
+      [id]
+    );
 
     const deletedProductData: Product[] = await db.query(
       "DELETE FROM products WHERE id = $1",
